@@ -222,6 +222,15 @@ void ClientRecvTask::run()
 				else
 				{
 					WRITELOG("%s Client(%s) is not connecting. message has been discarded.%s\n", ERRMSG_HEADER, senderAddr->sprint(buf), ERRMSG_FOOTER);
+				
+					/* Inform unknown client by sending a DISCONNECT */
+					MQTTSNPacket* snPacket = new MQTTSNPacket();
+					snPacket->setDISCONNECT(0);
+					client = new Client(false);
+					client->setClientAddress(senderAddr);
+					ev = new Event();
+					ev->setClientSendEvent(client, snPacket);
+					sendEventQue->post(ev);
 				}
 				delete packet;
 			}
